@@ -4,11 +4,106 @@
 	<title>Astronomy Calc</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@200;300;400;500;600;700&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+	<style>
+		body {
+			font-size: 12px;
+			font-family: 'Noto Sans Mono', monospace;
+		}
+	</style>
 </head>
 
 <body class="p-2">
-	<h1>Calculations</h1>
+	<h1 class="text-center">Commands</h1>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-2">
+				<div class="list-group">
+					<button class="list-group-item" onclick="menuClick('utils')">Utils</button>
+					<button class="list-group-item" onclick="menuClick('golang')">Golang</button>
+					<button class="list-group-item" onclick="menuClick('docker')">Docker</button>
+					<button class="list-group-item" onclick="menuClick('kubernetes')">Kubernetes</button>
+					<button class="list-group-item" onclick="menuClick('mongodb')">MongoDB</button>
+					<button class="list-group-item" onclick="menuClick('elastic')">Elastic</button>
+					<button class="list-group-item" onclick="menuClick('jenkins')">Jenkins</button>
+					<button class="list-group-item" onclick="menuClick('uninstall')">Uninstall</button>
+				</div>
+			</div>
+			<div class="col-9" id="content">
+			</div>
+		</div>
+	</div>
 
+	<script>
+		// DATA
+		var commands = {};
+		var headers = [];
+
+		// ELEMENTS
+
+		async function fetchReadme(page) {
+			const response = await fetch("./commands.json");
+			commands = await response.json();
+		}
+
+		function menuClick(elementId) {
+			const targetElement = document.getElementById(elementId);
+			targetElement.scrollIntoView({ behavior: 'smooth' });
+		}
+
+		function copyCommand(data) {
+			navigator.clipboard.writeText(data);
+		}
+
+		function generateCommandDisplayWithCopyOption(data) {
+			let element = document.createElement("div");
+			element.classList.add("p-2");
+			element.classList.add("font-monospace");
+			element.classList.add("bg-secondary-subtle");
+			element.classList.add("mb-1");
+			element.classList.add("border");
+			element.classList.add("border-secondary-subtle");
+			element.classList.add("rounded-1");
+			element.innerHTML = data;
+			return element
+		}
+
+		function populateGeneric(data) {
+			let card = document.createElement("div");
+			card.classList.add("card");
+			card.classList.add("mb-3");
+
+			let cardHeader = document.createElement("div");
+			cardHeader.classList.add("card-header");
+			cardHeader.innerHTML = data.title;
+			card.appendChild(cardHeader);
+
+			let cardBody = document.createElement("div");
+			cardBody.classList.add("card-body");
+			data.commands.forEach(cmd => {
+				cardBody.appendChild(generateCommandDisplayWithCopyOption(cmd));
+			});
+			card.appendChild(cardBody);
+			if (data.children && data.children.length > 0) {
+				data.children.forEach(child => {
+					cardBody.appendChild(populateGeneric(child));
+				});
+			}
+			return card;
+		}
+
+		(async () => {
+			await fetchReadme();
+			let content = document.getElementById("content");
+			content.appendChild(populateGeneric(commands.utils));
+			content.appendChild(populateGeneric(commands.golang));
+			content.appendChild(populateGeneric(commands.docker));
+		})()
+	</script>
 </body>
 
 </html>
