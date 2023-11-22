@@ -14,6 +14,21 @@
 			font-size: 12px;
 			font-family: 'Noto Sans Mono', monospace;
 		}
+
+		.copy-container {
+			cursor: pointer;
+			transition: background-color 0.2s;
+		}
+
+		.copy-button {
+			opacity: 0;
+			transition: opacity 0.2s;
+			color: black;
+		}
+
+		.copy-container:hover .copy-button {
+			opacity: 1;
+		}
 	</style>
 </head>
 
@@ -55,21 +70,48 @@
 			targetElement.scrollIntoView({ behavior: 'smooth' });
 		}
 
-		function copyCommand(data) {
+		function copyCommand(id, data) {
+			let element = document.getElementById(id);
+			element.classList.replace('bg-secondary-subtle', 'bg-warning');
+			setTimeout(() => {
+				element.classList.replace('bg-warning', 'bg-secondary-subtle');
+			}, 200);
 			navigator.clipboard.writeText(data);
 		}
 
 		function generateCommandDisplayWithCopyOption(data) {
+			let rand = `e${Math.floor(Math.random() * 1000000)}`;
 			let element = document.createElement("div");
-			element.classList.add("p-2");
+			element.classList.add("d-flex");
+			element.classList.add("flex-row");
+			element.classList.add("justify-content-between");
+			element.classList.add("copy-container");
 			element.classList.add("font-monospace");
 			element.classList.add("bg-secondary-subtle");
 			element.classList.add("mb-1");
 			element.classList.add("border");
 			element.classList.add("border-secondary-subtle");
 			element.classList.add("rounded-1");
-			element.innerHTML = data;
-			element.onclick = () => copyCommand(data);
+			element.id = rand;
+			element.onclick = () => copyCommand(rand, data);
+
+			let commandElem = document.createElement("div");
+			commandElem.classList.add("p-2");
+			commandElem.classList.add("flex-grow-1");
+			commandElem.innerHTML = data;
+			element.appendChild(commandElem);
+
+			let copybutton = document.createElement("div");
+			copybutton.classList.add("p-2");
+			copybutton.classList.add("fs-5");
+			let copyIcon = document.createElement("i");
+			copyIcon.classList.add("copy-button");
+			copyIcon.classList.add("bi");
+			copyIcon.classList.add("bi-clipboard");
+			copyIcon.style.width = "100px";
+			copybutton.appendChild(copyIcon);
+
+			element.appendChild(copybutton);
 			return element
 		}
 
@@ -96,7 +138,7 @@
 			card.appendChild(cardBody);
 			if (data.children && data.children.length > 0) {
 				data.children.forEach(child => {
-					cardBody.appendChild(populateGeneric(child));
+					cardBody.appendChild(populateGeneric(this, child));
 				});
 			}
 			return card;
