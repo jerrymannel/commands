@@ -76,9 +76,11 @@
 			let card = document.createElement("div");
 			card.classList.add("card");
 			card.classList.add("mb-3");
+			card.id = data.id;
 
 			let cardHeader = document.createElement("div");
 			cardHeader.classList.add("card-header");
+			cardHeader.classList.add("fs-5");
 			cardHeader.innerHTML = data.title;
 			card.appendChild(cardHeader);
 
@@ -99,9 +101,9 @@
 		(async () => {
 			await fetchReadme();
 			let content = document.getElementById("content");
-			content.appendChild(populateGeneric(commands.utils));
-			content.appendChild(populateGeneric(commands.golang));
-			content.appendChild(populateGeneric(commands.docker));
+			commands.forEach(command => {
+				content.appendChild(populateGeneric(command));
+			});
 		})()
 	</script>
 </body>

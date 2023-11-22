@@ -1,12 +1,14 @@
-{
-	"utils": {
+[
+	{
+		"id": "utils",
 		"title": "Utils",
 		"commands": [
 			"sudo apt-get update",
 			"sudo apt-get install -y apt-transport-https ca-certificates curl net-tools"
 		]
 	},
-	"golang": {
+	{
+		"id": "golang",
 		"title": "Golang",
 		"commands": [
 			"wget https://go.dev/dl/go1.21.4.linux-amd64.tar.gz",
@@ -15,7 +17,8 @@
 			"go version"
 		]
 	},
-	"docker": {
+	{
+		"id": "docker",
 		"title": "Docker",
 		"commands": [
 			"curl -fsSL https://get.docker.com -o get-docker.sh",
@@ -42,5 +45,48 @@
 				]
 			}
 		]
+	},
+	{
+		"id": "kubernetes",
+		"title": "Kubernetes",
+		"commands": [
+			"sudo apt-get update",
+			"curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.26/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg",
+			"echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.26/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list",
+			"sudo apt-get update",
+			"sudo apt-get install -y kubelet kubeadm kubectl"
+		],
+		"children": [
+			{
+				"title": "Optional",
+				"commands": [
+					"sudo apt-mark hold kubelet kubeadm kubectl"
+				]
+			},
+			{
+				"title": "Setup",
+				"commands": [
+					"sudo systemctl start kubelet",
+					"sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --cri-socket=unix:///var/run/cri-dockerd.sock",
+					"mkdir -p $HOME/.kube",
+					"sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
+					"sudo chown $(id -u):$(id -g) $HOME/.kube/config",
+					"kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml",
+					"kubectl taint nodes --all node-role.kubernetes.io/master-"
+				]
+			}
+		]
+	},
+	{
+		"id": "mongodb",
+		"title": "MongoDB",
+		"commands": [
+			"sudo apt-get install gnupg curl",
+			"sudo systemctl status mongod",
+			"sudo systemctl start mongod",
+			"sudo systemctl stop mongod",
+			"sudo systemctl restart mongod",
+			"replSetName: rs0"
+		]
 	}
-}
+]
