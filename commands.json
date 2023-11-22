@@ -58,12 +58,6 @@
 		],
 		"children": [
 			{
-				"title": "Optional",
-				"commands": [
-					"sudo apt-mark hold kubelet kubeadm kubectl"
-				]
-			},
-			{
 				"title": "Setup",
 				"commands": [
 					"sudo systemctl start kubelet",
@@ -73,6 +67,12 @@
 					"sudo chown $(id -u):$(id -g) $HOME/.kube/config",
 					"kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml",
 					"kubectl taint nodes --all node-role.kubernetes.io/master-"
+				]
+			},
+			{
+				"title": "Optional",
+				"commands": [
+					"sudo apt-mark hold kubelet kubeadm kubectl"
 				]
 			}
 		]
@@ -87,6 +87,96 @@
 			"sudo systemctl stop mongod",
 			"sudo systemctl restart mongod",
 			"replSetName: rs0"
+		],
+		"children": [
+			{
+				"title": "MongoDB 6.0",
+				"commands": [
+					"curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor",
+					"# Ubuntu 20.04",
+					"echo \"deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.com/apt/ubuntu focal/mongodb-enterprise/6.0 multiverse\" | sudo tee /etc/apt/sources.list.d/mongodb-enterprise-6.0.list",
+					"# Ubuntu 22.04",
+					"echo \"deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.com/apt/ubuntu jammy/mongodb-enterprise/6.0 multiverse\" | sudo tee /etc/apt/sources.list.d/mongodb-enterprise-6.0.list",
+					"sudo apt-get update",
+					"sudo apt-get install -y mongodb-enterprise"
+				]
+			}
+		]
+	},
+	{
+		"id": "elastic",
+		"title": "Elastic",
+		"children": [
+			{
+				"title": "Elasticsearch",
+				"commands": [
+					"wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg",
+					"sudo apt-get install apt-transport-https",
+					"echo \"deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main\" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list",
+					"sudo apt-get update && sudo apt-get install elasticsearch",
+					"sudo systemctl daemon-reload",
+					"sudo systemctl enable elasticsearch.service",
+					"sudo systemctl start elasticsearch.service"
+				],
+				"children": [
+					{
+						"title": "Setup",
+						"commands": [
+							"sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic",
+							"sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana",
+							"sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node",
+							"sudo /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token <token-here>"
+						]
+					}
+				]
+			},
+			{
+				"title": "Kibana",
+				"commands": [
+					"wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg",
+					"sudo apt-get install apt-transport-https",
+					"echo \"deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main\" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list",
+					"sudo apt-get update && sudo apt-get install kibana",
+					"sudo /bin/systemctl daemon-reload",
+					"sudo /bin/systemctl enable kibana.service",
+					"sudo systemctl start kibana.service"
+				]
+			},
+			{
+				"title": "Filebeat",
+				"commands": [
+					"curl -L -O https://raw.githubusercontent.com/elastic/beats/8.8/deploy/kubernetes/filebeat-kubernetes.yaml"
+				]
+			},
+			{
+				"title": "Metricbeat",
+				"commands": [
+					"curl -L -O https://raw.githubusercontent.com/elastic/beats/8.8/deploy/kubernetes/metricbeat-kubernetes.yaml"
+				]
+			}
+		]
+	},
+	{
+		"id": "jenkins",
+		"title": "Jenkins",
+		"commands": [
+			"curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null",
+			"echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null",
+			"sudo apt-get update",
+			"sudo apt-get install fontconfig openjdk-11-jre",
+			"sudo apt-get install jenkins"
+		]
+	},
+	{
+		"id": "uninstall",
+		"title": "Uninstall",
+		"commands": [
+			"sudo apt-get purge kubelet kubeadm kubectl",
+			"sudo apt-get purge docker docker-engine docker.io containerd runc",
+			"sudo rm -rf /var/lib/docker",
+			"sudo rm -rf /var/lib/containerd",
+			"sudo apt-get purge mongodb-enterprise*",
+			"sudo apt-get clean"
 		]
 	}
 ]

@@ -69,6 +69,7 @@
 			element.classList.add("border-secondary-subtle");
 			element.classList.add("rounded-1");
 			element.innerHTML = data;
+			element.onclick = () => copyCommand(data);
 			return element
 		}
 
@@ -76,19 +77,22 @@
 			let card = document.createElement("div");
 			card.classList.add("card");
 			card.classList.add("mb-3");
-			card.id = data.id;
+			if (data.id) card.id = data.id;
 
-			let cardHeader = document.createElement("div");
-			cardHeader.classList.add("card-header");
-			cardHeader.classList.add("fs-5");
-			cardHeader.innerHTML = data.title;
-			card.appendChild(cardHeader);
+			if (data.title) {
+				let cardHeader = document.createElement("div");
+				cardHeader.classList.add("card-header");
+				cardHeader.classList.add("fs-5");
+				cardHeader.innerHTML = data.title;
+				card.appendChild(cardHeader);
+			}
 
 			let cardBody = document.createElement("div");
 			cardBody.classList.add("card-body");
-			data.commands.forEach(cmd => {
-				cardBody.appendChild(generateCommandDisplayWithCopyOption(cmd));
-			});
+			if (data.commands)
+				data.commands.forEach(cmd => {
+					cardBody.appendChild(generateCommandDisplayWithCopyOption(cmd));
+				});
 			card.appendChild(cardBody);
 			if (data.children && data.children.length > 0) {
 				data.children.forEach(child => {
